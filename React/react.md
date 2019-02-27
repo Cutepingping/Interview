@@ -107,12 +107,13 @@ React Component 是接收参数输入返回某个 React Element 的函数或者�
    这种模式的好处是我们已经将我们的父组件和子组件分离了。父组件可以直接访问子组件的内部状态而不需要再通过props传递。这样父组件能够更为方便地控制子组件展示的UI界面。
    为了演示这一点，我们假设在另一个文件中，我们要渲染一个 Profile 而不是一个 Badge, ，因为我们使用渲染回调模式，所以我们可以轻松地交换 UI ，而不用改变我们对父（Twitter）组件的实现。
    
-     ```
       <Twitter username='tylermcginnis33'>
          {(user) => user === null
             ? <Loading />
             : <Profile  info = {user} />}
       </Twitter>
-   ``` 
+      
+## 6、在生命周期中的哪一步应该发起AJAX请求？
+
 
   
