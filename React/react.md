@@ -1,6 +1,56 @@
-**1、当你调用setState的时候，发生了什么事？
+1、当你调用setState的时候，发生了什么事？
 ------------
 
-当调用 setState 时，React会做的第一件事情是将传递给 setState 的对象合并到组件的当前状态。这将启动一个称为和解（reconciliation）的过程。和解（reconciliation）的最终目标是以最有效的方式，根据这个新的状态来更新UI。 为此，React将构建一个新的 React 元素树（您可以将其视为 UI 的对象表示）。
+   当调用 setState 时，React会做的第一件事情是将传递给 setState 的对象合并到组件的当前状态。这将启动一个称为和解（reconciliation）的过程。和解（reconciliation）的最终目标是以最有效的方式，根据这个新的状态来更新UI。 为此，React将构建一个新的 React 元素树（您可以将其视为 UI 的对象表示）。
 一旦有了这个树，为了弄清 UI 如何响应新的状态而改变，React 会将这个新树与上一个元素树相比.
 通过这样做， React 将会知道发生的确切变化，并且通过了解发生什么变化，只需在绝对必要的情况下进行更新即可最小化 UI 的占用空间。
+
+2、在 React 当中 Element 和 Component 有何区别？
+------------
+
+  简单来说，一个React element描述了你想要在屏幕上看到什么。换个说法就是，一个react element是一些UI的对象表示。
+ 一个React Component是一个函数或一个类，它可以接受输入并返回一个React element（通常是通过JSX，它被转换成一个createElement调用）
+
+3、什么时候在功能组件（functional Component）上使用类组件（class component）？
+------------
+
+  如果您的组件具有状态（state）或生命周期方法，请使用class组件，否则就使用功能组件
+
+4、什么是 React 的 refs ，为什么它们很重要？
+------------
+  refs就像一个逃生舱口，允许您直接访问DOM元素或组件实例。为了使用它们，您可以向组件添加一个ref属性，该属性的值是一个回调函数，它将
+  接收底层的DOM元素或组件的已挂接实例，作为其第一个参数
+  ```
+      class UnControlledForm extends Component{
+        handleSubmit = () => {
+          console.log('Input Value:',this.input.value )
+        }
+        render() {
+          return(
+            <form onSubmit = {this.handleSubmit}>
+              <input 
+                type = 'text'
+                ref = {(input) => this.input = input } />
+              <button type = 'submit'>Submit</button>
+             </form>
+          )
+        }
+      }
+  ```
+  以上注意到我们的输入字段有一个ref属性，其值是一个函数。该函数接收我们然后放在实例上的实际的DOM元素，以便在handleSubmit函数内部访问他。
+  经常误解的是，您需要使用类组件才能使用ref，但ref也可以通过利用JavaScript中的闭包与功能组件一起使用。
+    ```
+      function CustomForm({handleSubmit}) {
+        let inputElement
+        return (
+          <form onSubmit = {() => handleSubmit(inputElement.value)} />
+            <input 
+              type = 'text'
+              ref = {(input) => inputElement = input } />
+             <button type='submit'>Submit<button/>
+           </form>
+        )
+      }
+  ```
+  
+  
