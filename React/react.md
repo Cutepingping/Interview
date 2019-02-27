@@ -1,15 +1,15 @@
 1、当你调用setState的时候，发生了什么事？
 ------------
-
-   当调用 setState 时，React会做的第一件事情是将传递给 setState 的对象合并到组件的当前状态。这将启动一个称为和解（reconciliation）的过程。和解（reconciliation）的最终目标是以最有效的方式，根据这个新的状态来更新UI。 为此，React将构建一个新的 React 元素树（您可以将其视为 UI 的对象表示）。
-一旦有了这个树，为了弄清 UI 如何响应新的状态而改变，React 会将这个新树与上一个元素树相比.
-通过这样做， React 将会知道发生的确切变化，并且通过了解发生什么变化，只需在绝对必要的情况下进行更新即可最小化 UI 的占用空间。
+  在调用setState以后，
+1）react会将传入的参数对象跟当前的state合并，触发调和过程。
+2）调和以后，react会高效的根据新的状态构建react元素树。
+3）生成react元素树以后，通过diff算法可以得到新树和老树的节点差异。
+4）根据这些差异，可以精确的实现按需更新，即可最小化 UI 的占用空间。
 
 2、在 React 当中 Element 和 Component 有何区别？
 ------------
-
-  简单来说，一个React element描述了你想要在屏幕上看到什么。换个说法就是，一个react element是一些UI的对象表示。
- 一个React Component是一个函数或一个类，它可以接受输入并返回一个React element（通常是通过JSX，它被转换成一个createElement调用）
+react Element是所见内容的数据结构，是对UI的描述，是通过jsx构建的声明式代码片段。
+React Component 是接收参数输入返回某个 React Element 的函数或者类。
 
 3、什么时候在功能组件（functional Component）上使用类组件（class component）？
 ------------
@@ -37,9 +37,11 @@
         }
       }
   ```
+  
   以上注意到我们的输入字段有一个ref属性，其值是一个函数。该函数接收我们然后放在实例上的实际的DOM元素，以便在handleSubmit函数内部访问他。
   经常误解的是，您需要使用类组件才能使用ref，但ref也可以通过利用JavaScript中的闭包与功能组件一起使用。
-    ```
+  
+  ```
       function CustomForm({handleSubmit}) {
         let inputElement
         return (
@@ -53,4 +55,63 @@
       }
   ```
   
+ 4、React中的keys是什么？为什么它们很重要？
+------------
+   ```
+      return (
+         <ul>
+            {this.state.todoItems.map(({task, uid} => {
+               return <li key = {uid}>{task}</li>
+            }))
+         </ul>
+      )
+   ```
+  keys使react用于追踪哪些列表中元素被修改、被添加或者被移除的辅助标识
+  在开发过程中，我们需要保证某个元素的key在其同级元素中具有唯一性
+  1）React Diff算法中react会借助元素的key值来判断该元素是新近创建的还是被移动而来的元素，从而减少不必要的元素重渲染
+  2）React还需要借助key值来判断元素与本地状态的关联关系，因此我们绝不忽视转换函数中key的重要性
+  
+ 5、react中的回调渲染模式？
+------------
+   ```
+      <Twitter username='tylermcginnis33'>
+         {(user) => user === null
+            ? <Loading />
+            : <Badge info = {user} />}
+      </Twitter>
+   ```
+   ```
+      import React, { Component, PropTypes } from 'react'
+      import fetchUser from 'twitter'
+      //fetchUser接收用户名返回promise
+      //当得到用户的数据的时候，返回resolve状态
+      
+      class Twitter extends Component{
+         //在这里写下你的代码
+         state = {
+            user: null,
+         }
+         static propTypes = {
+            username:PropTypes.string.isRequired,
+         }
+         componentDidMount() {
+            fetchUser(this.props.username)
+               .then((user) => this.setState({user})
+         }
+         render() {
+            return this.props.children(this.state.user)
+         }
+      }
+   ```
+   渲染回调模式，在这种模式中，一个组件接收一个函数作为它的child。注意上面包含在标签内的内容。Twitter组件的child是一个函数，而不是一个组件。这意味着在实现的时候，我们需要将props.children作为一个函数来处理。
+   这种模式的好处是我们已经将我们的父组件和子组件分离了。父组件可以直接访问子组件的内部状态而不需要再通过props传递。这样父组件能够更为方便地控制子组件展示的UI界面。
+   为了演示这一点，我们假设在另一个文件中，我们要渲染一个 Profile 而不是一个 Badge, ，因为我们使用渲染回调模式，所以我们可以轻松地交换 UI ，而不用改变我们对父（Twitter）组件的实现。
+     ```
+      <Twitter username='tylermcginnis33'>
+         {(user) => user === null
+            ? <Loading />
+            : <Profile  info = {user} />}
+      </Twitter>
+   ``` 
+
   
